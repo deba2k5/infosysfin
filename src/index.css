@@ -1,0 +1,177 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* KrishakSure Design System - Neon Agricultural Theme */
+
+@layer base {
+  :root {
+    /* Agricultural Neon Theme */
+    --background: 220 26% 14%;
+    --foreground: 120 100% 95%;
+
+    --card: 220 26% 16%;
+    --card-foreground: 120 100% 95%;
+
+    --popover: 220 26% 16%;
+    --popover-foreground: 120 100% 95%;
+
+    --primary: 120 100% 50%;
+    --primary-foreground: 220 26% 14%;
+    --primary-glow: 120 100% 60%;
+
+    --secondary: 220 26% 20%;
+    --secondary-foreground: 120 80% 90%;
+
+    --muted: 220 26% 18%;
+    --muted-foreground: 120 20% 70%;
+
+    --accent: 95 100% 50%;
+    --accent-foreground: 220 26% 14%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 120 100% 95%;
+
+    --border: 220 26% 25%;
+    --input: 220 26% 18%;
+    --ring: 120 100% 50%;
+
+    --radius: 0.75rem;
+
+    /* Agricultural Color Palette */
+    --agri-green: 120 100% 50%;
+    --agri-green-dark: 120 100% 40%;
+    --agri-green-light: 120 100% 70%;
+    --agri-lime: 95 100% 50%;
+    --agri-earth: 30 50% 45%;
+    --agri-sky: 200 100% 60%;
+    --agri-gold: 45 100% 55%;
+
+    /* Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(var(--agri-green)), hsl(var(--agri-lime)));
+    --gradient-secondary: linear-gradient(135deg, hsl(var(--background)), hsl(var(--card)));
+    --gradient-accent: linear-gradient(135deg, hsl(var(--agri-sky)), hsl(var(--agri-green)));
+    --gradient-earth: linear-gradient(135deg, hsl(var(--agri-earth)), hsl(var(--agri-gold)));
+
+    /* Shadows & Effects */
+    --shadow-neon: 0 0 20px hsl(var(--agri-green) / 0.3);
+    --shadow-neon-strong: 0 0 40px hsl(var(--agri-green) / 0.5);
+    --shadow-card: 0 8px 32px hsl(220 26% 8% / 0.3);
+    --glow-border: 0 0 15px hsl(var(--agri-green) / 0.4);
+
+    /* Animations */
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-bounce: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+
+    /* Sidebar variables */
+    --sidebar-background: 220 26% 12%;
+    --sidebar-foreground: 120 80% 90%;
+    --sidebar-primary: 120 100% 50%;
+    --sidebar-primary-foreground: 220 26% 14%;
+    --sidebar-accent: 220 26% 18%;
+    --sidebar-accent-foreground: 120 80% 90%;
+    --sidebar-border: 220 26% 25%;
+    --sidebar-ring: 120 100% 50%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans;
+    background-image: 
+      radial-gradient(circle at 25% 25%, hsl(var(--agri-green) / 0.05) 0%, transparent 50%),
+      radial-gradient(circle at 75% 75%, hsl(var(--agri-lime) / 0.05) 0%, transparent 50%);
+  }
+}
+
+@layer components {
+  /* Agricultural Component Styles */
+  .neon-border {
+    @apply border-2 border-primary shadow-[var(--glow-border)];
+  }
+  
+  .neon-glow {
+    @apply shadow-[var(--shadow-neon)];
+  }
+  
+  .neon-glow-strong {
+    @apply shadow-[var(--shadow-neon-strong)];
+  }
+  
+  .gradient-primary {
+    background: var(--gradient-primary);
+  }
+  
+  .gradient-secondary {
+    background: var(--gradient-secondary);
+  }
+  
+  .gradient-accent {
+    background: var(--gradient-accent);
+  }
+  
+  .gradient-earth {
+    background: var(--gradient-earth);
+  }
+  
+  .transition-smooth {
+    transition: var(--transition-smooth);
+  }
+  
+  .transition-bounce {
+    transition: var(--transition-bounce);
+  }
+  
+  .glass-card {
+    @apply bg-card/20 backdrop-blur-lg border border-border/30 shadow-[var(--shadow-card)];
+  }
+  
+  .agri-card {
+    @apply bg-card border border-border/50 rounded-2xl p-6 transition-all duration-300 hover:border-primary/50 hover:shadow-[var(--shadow-neon)];
+  }
+  
+  .hero-text {
+    background: var(--gradient-primary);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+}
+
+@layer utilities {
+  .text-agri-green {
+    color: hsl(var(--agri-green));
+  }
+  
+  .text-agri-lime {
+    color: hsl(var(--agri-lime));
+  }
+  
+  .text-agri-earth {
+    color: hsl(var(--agri-earth));
+  }
+  
+  .text-agri-sky {
+    color: hsl(var(--agri-sky));
+  }
+  
+  .text-agri-gold {
+    color: hsl(var(--agri-gold));
+  }
+  
+  .bg-agri-green {
+    background-color: hsl(var(--agri-green));
+  }
+  
+  .bg-agri-lime {
+    background-color: hsl(var(--agri-lime));
+  }
+  
+  .border-agri-green {
+    border-color: hsl(var(--agri-green));
+  }
+}
