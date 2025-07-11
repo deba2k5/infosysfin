@@ -9,6 +9,7 @@ import Advisory from "./pages/Advisory";
 import CropHealth from "./pages/CropHealth";
 import MarketPrices from "./pages/MarketPrices";
 import NotFound from "./pages/NotFound";
+import Auth from "./pages/Auth";
 
 const App = () => (
   <AuthProvider>
@@ -16,7 +17,7 @@ const App = () => (
       <div className="min-h-screen bg-background">
         <Navbar />
         <Routes>
-          <Route path="/" element={<Dashboard />} />
+          <Route path="/auth" element={<Auth />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/crop-planning" element={<CropPlanning />} />
           <Route path="/weather" element={<Weather />} />
@@ -24,6 +25,7 @@ const App = () => (
           <Route path="/advisory" element={<Advisory />} />
           <Route path="/crop-health" element={<CropHealth />} />
           <Route path="/market-prices" element={<MarketPrices />} />
+          <Route path="/" element={<Auth />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </div>
