@@ -13,7 +13,7 @@ With integrations across satellite intelligence, weather forecasts, mandi prices
 | 🛰️ **NDVI Vegetation Health**   | Real-time NDVI & surface reflectance maps via **Planet API + Leaflet**     |
 | ☁️ **Weather Forecast**         | 7-day forecasts + alerts via **Tomorrow.io API**                           |
 | 📉 **Mandi Price Analysis**     | Crop-wise price trends via **Agmarknet API**                               |
-| 🧬 **Crop Health Diagnosis**    | Upload plant image → detect diseases using **Gemini API**                  |
+| 🧬 **Crop Health Diagnosis**    | Upload plant image → detect diseases using **linkanjarad/mobilenet_v2_1.0_224-plant-disease-identification**                  |
 | 🌱 **Cross Crop Advisory**      | Soil-Season-Crop input → get companion crop suggestions (via AI)           |
 | 🔔 **Smart Alerts**             | WhatsApp/SMS via **Twilio API**, alerts for weather, disease & prices      |
 | 🛡️ **Crop Insurance Calculator**| Estimate premium & find available government insurance                     |
