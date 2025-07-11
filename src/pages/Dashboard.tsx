@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '@/components/AuthProvider';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -20,16 +21,26 @@ import {
 import cropDiagnosisImage from '@/assets/crop-diagnosis.jpg';
 import weatherSatelliteImage from '@/assets/weather-satellite.jpg';
 import farmerTechImage from '@/assets/farmer-tech.jpg';
-import { satelliteService } from '@/services/satelliteService';
+import { satelliteService, SatelliteData } from '@/services/satelliteService';
 import { weatherService, ForecastDay } from '@/services/weatherService';
+
+// Define DashboardAlert type for alerts
+interface DashboardAlert {
+  id: string;
+  type: 'weather' | 'disease';
+  severity: 'low' | 'medium' | 'high';
+  message: string;
+  time: string;
+}
 
 const Dashboard = () => {
   const navigate = useNavigate();
+  const { user, loading } = useAuth();
 
   // --- Live location and manual override state ---
   const DEFAULT_LOCATION = { lat: 18.5204, lon: 73.8567 }; // Pune, Maharashtra
   const [location, setLocation] = useState<{ lat: number; lon: number } | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [dataLoading, setDataLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [manualMode, setManualMode] = useState(false);
   const [placeName, setPlaceName] = useState('');
@@ -51,8 +62,14 @@ const Dashboard = () => {
   });
 
   const [forecast, setForecast] = useState<ForecastDay[]>([]);
-  const [satelliteData, setSatelliteData] = useState<any>(null);
-  const [recentAlerts, setRecentAlerts] = useState<any[]>([]);
+  const [satelliteData, setSatelliteData] = useState<SatelliteData | null>(null);
+  const [recentAlerts, setRecentAlerts] = useState<DashboardAlert[]>([]);
+
+  useEffect(() => {
+    if (!loading && !user) {
+      navigate('/auth');
+    }
+  }, [user, loading, navigate]);
 
   // --- Your quick actions (unchanged) ---
   const quickActions = [
@@ -109,12 +126,12 @@ const Dashboard = () => {
 
   // --- Fetch satellite data and farm metrics ---
   const fetchData = async (lat: number, lon: number) => {
-    setLoading(true);
+    setDataLoading(true);
     setError(null);
     try {
       const satellite = await satelliteService.getSatelliteData(lat, lon);
       setFarmData({
-        totalArea: `${satellite.geospatialAnalysis.fieldBoundaries.reduce((sum: number, f: any) => sum + f.area, 0).toFixed(2)} hectares`,
+        totalArea: `${satellite.geospatialAnalysis.fieldBoundaries.reduce((sum: number, f) => sum + f.area, 0).toFixed(2)} hectares`,
         currentCrops: satellite.geospatialAnalysis.cropClassification.length,
         healthScore: satellite.geospatialAnalysis.healthAnalysis.overallHealth,
         yieldPrediction: `+${(satellite.vegetationIndex * 100).toFixed(0)}%`
@@ -135,7 +152,7 @@ const Dashboard = () => {
         condition: 'Partly Cloudy'
       });
     } finally {
-      setLoading(false);
+      setDataLoading(false);
     }
   };
 
@@ -160,12 +177,12 @@ const Dashboard = () => {
       setError('Please enter a place name.');
       return;
     }
-    setLoading(true);
+    setDataLoading(true);
     setError(null);
     const coords = await geocodePlace(placeName.trim());
     if (!coords) {
       setError('Place not found. Please try another name.');
-      setLoading(false);
+      setDataLoading(false);
       return;
     }
     setLocation(coords);
@@ -179,7 +196,7 @@ const Dashboard = () => {
     setUsingManual(false);
     setPlaceName('');
     setManualMode(false);
-    setLoading(true);
+    setDataLoading(true);
     setError(null);
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
@@ -214,7 +231,7 @@ const Dashboard = () => {
   // --- On mount: get location (auto/manual) ---
   useEffect(() => {
     if (!usingManual) {
-      setLoading(true);
+      setDataLoading(true);
       setError(null);
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(
@@ -270,7 +287,7 @@ const Dashboard = () => {
 
   // --- Generate live recent alerts from forecast and satellite data ---
   useEffect(() => {
-    const alerts: any[] = [];
+    const alerts: DashboardAlert[] = [];
     // Weather-based alerts
     forecast.forEach(day => {
       if (day.rain >= 80) {
@@ -312,7 +329,7 @@ const Dashboard = () => {
         });
       }
       if (satelliteData.geospatialAnalysis?.healthAnalysis?.stressAreas?.length > 0) {
-        satelliteData.geospatialAnalysis.healthAnalysis.stressAreas.forEach((area: any, idx: number) => {
+        satelliteData.geospatialAnalysis.healthAnalysis.stressAreas.forEach((area, idx) => {
           alerts.push({
             id: `stress-${idx}`,
             type: 'disease',
@@ -340,6 +357,9 @@ const Dashboard = () => {
   const handleQuickAction = (action: string, path: string) => {
     navigate(path);
   };
+
+  // Place the loading check here, after all hooks
+  if (loading) return null;
 
   return (
     <div className="container mx-auto p-6 space-y-6">
@@ -387,7 +407,7 @@ const Dashboard = () => {
           </Button>
         </form>
       )}
-      {loading && (
+      {dataLoading && (
         <div className="my-4 text-center text-blue-500">Loading live data...</div>
       )}
       {error && (
@@ -561,3 +581,4 @@ const Dashboard = () => {
 };
 
 export default Dashboard;
+
