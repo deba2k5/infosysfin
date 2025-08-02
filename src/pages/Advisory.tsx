@@ -11,47 +11,50 @@ import {
   Languages,
   Headphones
 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
+import SpeakButton from '@/components/SpeakButton';
 
 const Advisory = () => {
+  const { t } = useTranslation();
   const [selectedLanguage, setSelectedLanguage] = useState('english');
 
   const advisoryServices = [
     {
-      title: 'AI Chat Assistant',
-      description: 'Get instant answers to your farming questions',
+      title: t('aiChatAssistant'),
+      description: t('getInstantAnswers'),
       icon: Bot,
-      features: ['24/7 availability', 'Multi-language support', 'Crop-specific advice'],
+      features: [t('availability'), t('multiLanguageSupport'), t('cropSpecificAdvice')],
     },
     {
-      title: 'Voice Advisory',
-      description: 'Call our agricultural experts directly',
+      title: t('voiceAdvisory'),
+      description: t('callAgriculturalExperts'),
       icon: Phone,
-      features: ['Expert consultation', 'Regional language support', 'Emergency advice'],
+      features: [t('expertConsultation'), t('regionalLanguageSupport'), t('emergencyAdvice')],
     }
   ];
 
   const recentQueries = [
     {
       id: 1,
-      question: 'Best time to plant tomatoes in Maharashtra?',
-      answer: 'For Maharashtra, the best time to plant tomatoes is during October-November for winter crop and June-July for monsoon crop.',
-      time: '2 hours ago',
+      question: t('bestTimeToPlant'),
+      answer: t('tomatoPlantingAnswer'),
+      time: `2 ${t('hoursAgo')}`,
       rating: 5,
       expert: 'Dr. Rajesh Kumar'
     },
     {
       id: 2,
-      question: 'How to control aphids in cotton crop?',
-      answer: 'Use neem oil spray (5ml per liter water) early morning. Install yellow sticky traps. Consider beneficial insects like ladybugs.',
-      time: '1 day ago',
+      question: t('howToControlAphids'),
+      answer: t('aphidControlAnswer'),
+      time: `1 ${t('dayAgo')}`,
       rating: 4,
-      expert: 'AI Assistant'
+      expert: t('aiChatAssistant')
     },
     {
       id: 3,
-      question: 'Soil testing procedure and cost?',
-      answer: 'Contact your nearest KVK or agricultural department. Cost is ₹50–200. Tests for pH, NPK, organic matter, and micronutrients.',
-      time: '2 days ago',
+      question: t('soilTestingProcedure'),
+      answer: t('soilTestingAnswer'),
+      time: `2 ${t('daysAgo')}`,
       rating: 5,
       expert: 'Prof. Sunita Devi'
     }
@@ -60,24 +63,24 @@ const Advisory = () => {
   const experts = [
     {
       name: 'Dr. Rajesh Kumar',
-      specialization: 'Crop Protection',
-      experience: '15 years',
+      specialization: t('cropProtection'),
+      experience: `15 ${t('years')}`,
       rating: 4.8,
       languages: ['Hindi', 'English', 'Marathi'],
       available: true
     },
     {
       name: 'Prof. Sunita Devi',
-      specialization: 'Soil Science',
-      experience: '12 years',
+      specialization: t('soilScience'),
+      experience: `12 ${t('years')}`,
       rating: 4.9,
       languages: ['Hindi', 'English', 'Punjabi'],
       available: false
     },
     {
       name: 'Dr. Amit Sharma',
-      specialization: 'Plant Pathology',
-      experience: '18 years',
+      specialization: t('plantPathology'),
+      experience: `18 ${t('years')}`,
       rating: 4.7,
       languages: ['Hindi', 'English', 'Gujarati'],
       available: true
@@ -89,15 +92,13 @@ const Advisory = () => {
       {/* Header */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center space-y-4 md:space-y-0">
         <div>
-          <h1 className="text-3xl font-bold hero-text">AI Advisory</h1>
-          <p className="text-muted-foreground mt-1">
-            Get expert agricultural advice through AI and voice calls
-          </p>
+          <h1 className="text-3xl font-bold flex items-center gap-2">{t('advisory')} <SpeakButton textKey="advisory" /></h1>
+          <p className="text-muted-foreground mt-1">{t('getAdvice')}</p>
         </div>
         <div className="flex items-center space-x-2">
           <Languages className="h-5 w-5 text-primary" />
           <Badge variant="outline" className="text-xs">
-            Multi-Language Support
+            {t('multiLanguageSupport')}
           </Badge>
         </div>
       </div>
@@ -107,10 +108,10 @@ const Advisory = () => {
         <CardHeader>
           <CardTitle className="flex items-center space-x-2">
             <Bot className="h-5 w-5" />
-            <span>AI Chat Assistant AgriSmart</span>
+            <span>{t('aiChatAssistant')} AgriSmart</span>
           </CardTitle>
           <CardDescription>
-            Ask any farming question and get instant AI-powered answers via Botpress
+            {t('askAnyFarmingQuestion')}
           </CardDescription>
         </CardHeader>
         <CardContent className="p-0" style={{ height: '400px' }}>
@@ -154,7 +155,7 @@ const Advisory = () => {
                     </div>
                   ))}
                 </div>
-                <Button className="w-full gradient-primary">Try Now</Button>
+                <Button className="w-full gradient-primary">{t('tryNow')}</Button>
               </CardContent>
             </Card>
           );
@@ -168,9 +169,9 @@ const Advisory = () => {
           <CardHeader>
             <CardTitle className="flex items-center space-x-2">
               <Headphones className="h-5 w-5" />
-              <span>Expert Consultation</span>
+              <span>{t('expertConsultation')}</span>
             </CardTitle>
-            <CardDescription>Connect with agricultural experts</CardDescription>
+            <CardDescription>{t('connectWithExperts')}</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             {experts.map((expert) => (
@@ -184,16 +185,16 @@ const Advisory = () => {
                         : 'text-red-400 bg-red-400/20'
                     }
                   >
-                    {expert.available ? 'Available' : 'Busy'}
+                    {expert.available ? t('available') : t('busy')}
                   </Badge>
                 </div>
                 <div className="grid grid-cols-2 gap-2 text-sm mb-3">
                   <div>
-                    <p className="text-muted-foreground">Specialization</p>
+                    <p className="text-muted-foreground">{t('specialization')}</p>
                     <p className="font-medium">{expert.specialization}</p>
                   </div>
                   <div>
-                    <p className="text-muted-foreground">Experience</p>
+                    <p className="text-muted-foreground">{t('experience')}</p>
                     <p className="font-medium">{expert.experience}</p>
                   </div>
                 </div>
@@ -210,7 +211,7 @@ const Advisory = () => {
                   disabled={!expert.available}
                 >
                   <Phone className="h-4 w-4 mr-2" />
-                  Call Expert
+                  {t('callExpert')}
                 </Button>
               </div>
             ))}
@@ -222,9 +223,9 @@ const Advisory = () => {
           <CardHeader>
             <CardTitle className="flex items-center space-x-2">
               <MessageSquare className="h-5 w-5" />
-              <span>Recent Queries</span>
+              <span>{t('recentQueries')}</span>
             </CardTitle>
-            <CardDescription>Your recent farming questions and answers</CardDescription>
+            <CardDescription>{t('yourRecentQuestions')}</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             {recentQueries.map((query) => (
@@ -244,7 +245,7 @@ const Advisory = () => {
                 </div>
                 <p className="text-sm text-muted-foreground">{query.answer}</p>
                 <div className="flex items-center justify-between text-xs text-muted-foreground">
-                  <span>By: {query.expert}</span>
+                  <span>{t('by')}: {query.expert}</span>
                   <div className="flex items-center space-x-1">
                     <Clock className="h-3 w-3" />
                     <span>{query.time}</span>

@@ -1,106 +1,242 @@
-import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { useNavigate, Link } from 'react-router-dom';
+import SpeakButton from '@/components/SpeakButton';
+import LanguageSelector from '@/components/LanguageSelector';
+import { Menu, X, Leaf, User, LogOut, Settings, Shield } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useAuth } from '@/components/AuthProvider';
-import { 
-  Leaf, 
-  BarChart3, 
-  CloudSun, 
-  ShieldCheck, 
-  MessageSquare, 
-  User,
-  LogOut 
-} from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { useAuth } from '@/components/AuthProvider';
+
+const NAV_LINKS = [
+  { href: '/dashboard', key: 'dashboard' },
+  { href: '/crop-planning', key: 'cropPlanning' },
+  { href: '/weather', key: 'weather' },
+  { href: '/insurance', key: 'insurance' },
+  { href: '/market-prices', key: 'marketPrices' },
+  { href: '/advisory', key: 'advisory' },
+  { href: '/loan-eligibility', key: 'loanEligibility' },
+];
 
 const Navbar = () => {
+  const { t } = useTranslation();
+  const navigate = useNavigate();
   const { user, logout } = useAuth();
-  const location = useLocation();
+  const [menuOpen, setMenuOpen] = useState(false);
 
-  const navItems = [
-    { name: 'Dashboard', path: '/dashboard', icon: BarChart3 },
-    { name: 'Crop Planning', path: '/crop-planning', icon: Leaf },
-    { name: 'Weather', path: '/weather', icon: CloudSun },
-    { name: 'Insurance', path: '/insurance', icon: ShieldCheck },
-    { name: 'Advisory', path: '/advisory', icon: MessageSquare },
-  ];
-
-  const isActive = (path: string) => location.pathname === path;
+  const handleLogout = async () => {
+    try {
+      await logout();
+      navigate('/auth');
+    } catch (error) {
+      console.error('Logout failed:', error);
+    }
+  };
 
   return (
-    <nav className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container flex h-16 items-center">
-        <Link to="/" className="flex items-center space-x-2">
-          <div className="relative">
-            <Leaf className="h-8 w-8 text-primary animate-glow-pulse" />
-            <div className="absolute -inset-1 bg-primary/20 rounded-full blur-sm"></div>
+    <nav className="sticky top-0 z-50 w-full bg-background/95 backdrop-blur border-b border-primary/10">
+      <div className="container mx-auto px-4 h-14 flex items-center justify-between">
+        {/* Logo and Brand Name */}
+        <div className="flex items-center gap-2 flex-shrink-0">
+          <div className="flex items-center gap-2">
+            <Leaf className="h-6 w-6 text-primary" />
+            <span className="text-lg font-bold text-primary font-sans tracking-wide">
+              Krishi Sure
+            </span>
           </div>
-          <span className="font-bold text-xl hero-text">KrishakSure</span>
-        </Link>
+          <SpeakButton textKey="dashboard" />
+        </div>
 
-        {user && (
-          <div className="flex items-center space-x-6 ml-8">
-            {navItems.map((item) => {
-              const Icon = item.icon;
-              return (
-                <Link
-                  key={item.path}
-                  to={item.path}
-                  className={`flex items-center space-x-2 px-3 py-2 rounded-lg transition-all ${
-                    isActive(item.path)
-                      ? 'bg-primary/20 text-primary neon-glow'
-                      : 'text-muted-foreground hover:text-foreground hover:bg-secondary/50'
-                  }`}
-                >
-                  <Icon className="h-4 w-4" />
-                  <span className="text-sm font-medium">{item.name}</span>
-                </Link>
-              );
-            })}
+        {/* Desktop Navigation */}
+        <div className="hidden lg:flex items-center gap-6 flex-1 justify-center">
+          {NAV_LINKS.map(link => (
+            <Link
+              key={link.key}
+              to={link.href}
+              className="text-sm font-medium text-foreground/80 hover:text-primary transition-colors duration-200 whitespace-nowrap"
+            >
+              {t(link.key)}
+            </Link>
+          ))}
+        </div>
+
+        {/* Language Selector and Auth */}
+        <div className="flex items-center gap-3">
+          {/* Language Selector - Always visible */}
+          <div className="hidden sm:block">
+            <LanguageSelector />
           </div>
-        )}
 
-        <div className="ml-auto flex items-center space-x-4">
+          {/* Authentication */}
           {user ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="relative h-8 w-8 rounded-full">
-                  <User className="h-4 w-4" />
+                  <Avatar className="h-8 w-8">
+                    <AvatarImage src={user.avatar} alt={user.email} />
+                    <AvatarFallback className="bg-green-100 text-green-800">
+                      {user.email ? user.email.split('@')[0].charAt(0).toUpperCase() : 'U'}
+                    </AvatarFallback>
+                  </Avatar>
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent className="w-56" align="end" forceMount>
-                <DropdownMenuItem className="font-normal">
+                <DropdownMenuLabel className="font-normal">
                   <div className="flex flex-col space-y-1">
-                    <p className="text-sm font-medium leading-none">
+                    <p className="text-sm font-medium leading-none">{user.email}</p>
+                    <p className="text-xs leading-none text-muted-foreground">
                       {user.email}
                     </p>
-                    <p className="text-xs leading-none text-muted-foreground">
-                      KrishakSure Farmer
-                    </p>
                   </div>
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem>
+                  <User className="mr-2 h-4 w-4" />
+                  <span>{t('profile')}</span>
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={logout}>
+                <DropdownMenuItem>
+                  <Settings className="mr-2 h-4 w-4" />
+                  <span>{t('settings')}</span>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={handleLogout}>
                   <LogOut className="mr-2 h-4 w-4" />
-                  <span>Log out</span>
+                  <span>{t('logout')}</span>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           ) : (
-            <div className="flex items-center space-x-2">
-              <Link to="/auth">
-                <Button variant="ghost">Sign In</Button>
-              </Link>
-              <Link to="/auth">
-                <Button className="gradient-primary">Get Started</Button>
-              </Link>
+            <div className="hidden sm:flex items-center gap-2">
+              <Button 
+                variant="ghost" 
+                size="sm"
+                onClick={() => navigate('/auth')}
+                className="text-green-700 dark:text-green-300 hover:text-green-800 dark:hover:text-green-200"
+              >
+                {t('login')}
+              </Button>
+              <Button 
+                size="sm"
+                onClick={() => navigate('/auth')}
+                className="bg-green-600 hover:bg-green-700 text-white"
+              >
+                {t('signup')}
+              </Button>
             </div>
           )}
+
+          {/* Mobile Menu Button */}
+          <button
+            className="lg:hidden p-2 rounded-md hover:bg-accent transition-colors"
+            onClick={() => setMenuOpen(!menuOpen)}
+            aria-label={menuOpen ? t('closeMenu') : t('openMenu')}
+          >
+            {menuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+          </button>
         </div>
+
+        {/* Mobile Menu Overlay */}
+        {menuOpen && (
+          <div className="fixed inset-0 z-50 lg:hidden">
+            <div className="absolute inset-0 bg-black/50" onClick={() => setMenuOpen(false)} />
+            <div className="absolute top-0 right-0 w-80 h-full bg-background shadow-xl flex flex-col">
+              {/* Mobile Menu Header */}
+              <div className="flex items-center justify-between p-4 border-b">
+                <div className="flex items-center gap-2">
+                  <Leaf className="h-5 w-5 text-primary" />
+                  <span className="font-bold text-primary">Krishi Sure</span>
+                </div>
+                <button
+                  onClick={() => setMenuOpen(false)}
+                  className="p-2 rounded-md hover:bg-accent"
+                  aria-label={t('closeMenu')}
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              {/* Mobile Navigation Links */}
+              <div className="flex-1 p-4 space-y-2">
+                {NAV_LINKS.map(link => (
+                  <Link
+                    key={link.key}
+                    to={link.href}
+                    className="block py-3 px-4 rounded-lg hover:bg-accent text-foreground/80 hover:text-primary transition-colors"
+                    onClick={() => setMenuOpen(false)}
+                  >
+                    {t(link.key)}
+                  </Link>
+                ))}
+              </div>
+
+              {/* Mobile Language Selector */}
+              <div className="p-4 border-t">
+                <LanguageSelector />
+              </div>
+
+              {/* Mobile Authentication */}
+              <div className="p-4 border-t">
+                {user ? (
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-3 p-3 rounded-lg bg-accent">
+                      <Avatar className="h-8 w-8">
+                        <AvatarImage src={user.avatar} alt={user.email} />
+                        <AvatarFallback className="bg-green-100 text-green-800">
+                          {user.email ? user.email.split('@')[0].charAt(0).toUpperCase() : 'U'}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div>
+                        <p className="text-sm font-medium">{user.email}</p>
+                        <p className="text-xs text-muted-foreground">{user.email}</p>
+                      </div>
+                    </div>
+                    <Button 
+                      variant="outline" 
+                      className="w-full"
+                      onClick={() => {
+                        handleLogout();
+                        setMenuOpen(false);
+                      }}
+                    >
+                      <LogOut className="mr-2 h-4 w-4" />
+                      {t('logout')}
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    <Button 
+                      variant="outline" 
+                      className="w-full"
+                      onClick={() => {
+                        navigate('/auth');
+                        setMenuOpen(false);
+                      }}
+                    >
+                      {t('login')}
+                    </Button>
+                    <Button 
+                      className="w-full bg-green-600 hover:bg-green-700 text-white"
+                      onClick={() => {
+                        navigate('/auth');
+                        setMenuOpen(false);
+                      }}
+                    >
+                      {t('signup')}
+                    </Button>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </nav>
   );

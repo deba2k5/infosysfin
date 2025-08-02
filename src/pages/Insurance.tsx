@@ -1,296 +1,484 @@
+'use client';
+
 import React, { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+import {
+  Card, CardContent, CardDescription, CardHeader, CardTitle
+} from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import {
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue
+} from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { ShieldCheck, DollarSign, FileText, Smartphone, CheckCircle } from 'lucide-react';
+import { Progress } from '@/components/ui/progress';
+import {
+  ShieldCheck, Calculator, FileText, DollarSign, TrendingUp,
+  AlertCircle, CheckCircle, XCircle, Brain, Phone, MessageCircle, Leaf
+} from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { useTranslation } from 'react-i18next';
+import SpeakButton from '@/components/SpeakButton';
+import ReadPageButton from '@/components/ReadPageButton';
+import { analyzeInsuranceEligibility } from '@/services/groqService';
+import { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '@/components/AuthProvider';
+import { ArrowLeft } from 'lucide-react';
 
 const Insurance = () => {
-  const [cropArea, setCropArea] = useState('');
+  const { t } = useTranslation();
   const [cropType, setCropType] = useState('');
+  const [area, setArea] = useState('');
   const [expectedYield, setExpectedYield] = useState('');
+  const [premium, setPremium] = useState<number | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [claimStatus, setClaimStatus] = useState<string | null>(null);
+  const [uploadedImage, setUploadedImage] = useState<string | null>(null);
+  const [aiResult, setAiResult] = useState<string | null>(null);
+  const [aiLoading, setAiLoading] = useState(false);
+
+  const { user } = useAuth();
+  const navigate = useNavigate();
+
+  const calculatePremium = () => {
+    setLoading(true);
+    setTimeout(() => {
+      const basePremium = 500;
+      const areaMultiplier = parseFloat(area) * 100;
+      const cropMultiplier = cropType === 'wheat' ? 1.2 : cropType === 'rice' ? 1.5 : 1.0;
+      const calculatedPremium = Math.round(basePremium + areaMultiplier * cropMultiplier);
+      setPremium(calculatedPremium);
+      setLoading(false);
+    }, 2000);
+  };
+
+  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      setAiLoading(true);
+      setUploadedImage(URL.createObjectURL(file));
+      try {
+        const result = await analyzeInsuranceEligibility(file);
+        setAiResult(result.eligibility);
+      } catch (err) {
+        setAiResult('AI analysis failed. Please try again.');
+      } finally {
+        setAiLoading(false);
+      }
+    }
+  };
+
+  const submitClaim = () => {
+    setLoading(true);
+    setTimeout(() => {
+      setClaimStatus('approved');
+      setLoading(false);
+    }, 3000);
+  };
 
   const insuranceSchemes = [
     {
-      name: 'Pradhan Mantri Fasal Bima Yojana (PMFBY)',
-      coverage: 'Comprehensive',
-      premium: '₹2,500/hectare',
-      maxClaim: '₹50,000/hectare',
-      features: ['Weather-based claims', 'Satellite monitoring', 'Quick settlement'],
-      eligibility: 'All farmers',
-      status: 'Available',
+      name: 'PMFBY',
+      description: 'Pradhan Mantri Fasal Bima Yojana',
+      coverage: 'Comprehensive crop insurance',
+      premium: '1.5% - 5% of sum insured',
       link: 'https://pmfby.gov.in/'
     },
     {
-      name: 'Weather Based Crop Insurance',
-      coverage: 'Weather Events',
-      premium: '₹1,800/hectare',
-      maxClaim: '₹35,000/hectare',
-      features: ['Automated claims', 'No crop cutting', 'Fast payout'],
-      eligibility: 'Kharif crops',
-      status: 'Available',
-      link: 'https://www.aicofindia.com/'
+      name: 'WBCIS',
+      description: 'Weather Based Crop Insurance Scheme',
+      coverage: 'Weather-related losses',
+      premium: '2% - 8% of sum insured',
+      link: 'https://pmfby.gov.in/wbcis'
     },
     {
-      name: 'Coconut Palm Insurance Scheme',
-      coverage: 'Tree Coverage',
-      premium: '₹100/tree',
-      maxClaim: '₹9,000/tree',
-      features: ['Natural disasters', 'Disease coverage', '3-year validity'],
-      eligibility: 'Coconut farmers',
-      status: 'Seasonal',
-      link: 'https://www.kerala.gov.in/documents/10180/46696/Coconut%20Palm%20Insurance%20Scheme'
+      name: 'MNAIS',
+      description: 'Modified National Agricultural Insurance Scheme',
+      coverage: 'Yield-based insurance',
+      premium: '3.5% - 8% of sum insured',
+      link: 'https://agricoop.nic.in/en/MNAIS'
     }
   ];
 
   const recentClaims = [
     {
-      id: 'CL001',
+      id: 'CLM001',
       crop: 'Wheat',
       area: '2.5 hectares',
-      reason: 'Hailstorm damage',
-      amount: '₹45,000',
-      status: 'Approved',
-      date: '15 Oct 2024'
+      claimAmount: '₹45,000',
+      status: 'approved',
+      date: '2024-01-15'
     },
     {
-      id: 'CL002',
-      crop: 'Cotton',
+      id: 'CLM002',
+      crop: 'Rice',
       area: '1.8 hectares',
-      reason: 'Drought conditions',
-      amount: '₹32,000',
-      status: 'Under Review',
-      date: '8 Oct 2024'
+      claimAmount: '₹32,000',
+      status: 'pending',
+      date: '2024-01-10'
     }
   ];
 
   const microfinanceOptions = [
     {
-      name: 'Kisan Credit Card (KCC)',
-      amount: 'Up to ₹3,00,000',
-      interest: '7% per annum',
-      tenure: '5 years',
-      features: ['No processing fee', 'Flexible repayment', 'Crop loan + insurance'],
-      link: 'https://www.pmkisan.gov.in/KisanCreditCard.aspx'
+      name: 'Kisan Credit Card',
+      amount: '₹3,00,000',
+      interest: '7% p.a.',
+      tenure: '5 years'
     },
     {
-      name: 'Mudra Loan - Tarun',
-      amount: 'Up to ₹10,00,000',
-      interest: '8.5% per annum',
-      tenure: '3 years',
-      features: ['Quick approval', 'Minimal documentation', 'Business expansion'],
-      link: 'https://www.mudra.org.in/'
+      name: 'PM-KISAN',
+      amount: '₹6,000/year',
+      interest: 'Interest-free',
+      tenure: 'Annual'
+    },
+    {
+      name: 'NABARD Loans',
+      amount: '₹10,00,000',
+      interest: '8.5% p.a.',
+      tenure: '7 years'
     }
   ];
-
-  const getStatusColor = (status) => {
-    switch (status) {
-      case 'Approved': return 'text-green-400 bg-green-400/20';
-      case 'Under Review': return 'text-yellow-400 bg-yellow-400/20';
-      case 'Rejected': return 'text-red-400 bg-red-400/20';
-      case 'Available': return 'text-primary bg-primary/20';
-      case 'Seasonal': return 'text-blue-400 bg-blue-400/20';
-      default: return 'text-muted-foreground bg-muted/20';
-    }
-  };
-
-  const area = parseFloat(cropArea) || 0;
-  const premiumRate = 2500;
-  const maxClaimPerHectare = 50000;
-  const estimatedPremium = area * premiumRate;
-  const maxCoverage = area * maxClaimPerHectare;
-  const savingsPercent = 25;
 
   return (
     <div className="container mx-auto p-6 space-y-6">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center space-y-4 md:space-y-0">
         <div>
-          <h1 className="text-3xl font-bold hero-text">Insurance & Finance</h1>
-          <p className="text-muted-foreground mt-1">Secure your crops and access financial assistance</p>
+          <h1 className="text-3xl font-bold hero-text flex items-center gap-2">
+            {t('insurance')}
+            <SpeakButton textKey="insurance" />
+          </h1>
+          <p className="text-muted-foreground mt-1">
+            {t('calculatePremium')}
+          </p>
         </div>
         <div className="flex items-center space-x-2">
           <ShieldCheck className="h-5 w-5 text-primary" />
-          <Badge variant="outline" className="text-xs">Government Backed</Badge>
-        </div>
-      </div>
-
-      <Card className="agri-card">
-        <CardHeader>
-          <CardTitle className="flex items-center space-x-2">
-            <DollarSign className="h-5 w-5" />
-            <span>Insurance Premium Calculator</span>
-          </CardTitle>
-          <CardDescription>Calculate your premium (based on PMFBY)</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-            <div className="space-y-2">
-              <Label htmlFor="crop-area">Farm Area (hectares)</Label>
-              <Input id="crop-area" type="number" placeholder="5.2" value={cropArea} onChange={(e) => setCropArea(e.target.value)} />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="crop-type">Crop Type</Label>
-              <Input id="crop-type" type="text" placeholder="Wheat" value={cropType} onChange={(e) => setCropType(e.target.value)} />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="expected-yield">Expected Yield (quintal)</Label>
-              <Input id="expected-yield" type="number" placeholder="250" value={expectedYield} onChange={(e) => setExpectedYield(e.target.value)} />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-secondary/50 rounded-lg">
-            <div className="text-center">
-              <p className="text-sm text-muted-foreground">Estimated Premium</p>
-              <p className="text-2xl font-bold text-primary">₹{estimatedPremium.toLocaleString()}</p>
-            </div>
-            <div className="text-center">
-              <p className="text-sm text-muted-foreground">Maximum Coverage</p>
-              <p className="text-2xl font-bold text-primary">₹{maxCoverage.toLocaleString()}</p>
-            </div>
-            <div className="text-center">
-              <p className="text-sm text-muted-foreground">Savings vs Market</p>
-              <p className="text-2xl font-bold text-agri-lime">{savingsPercent}%</p>
-            </div>
-          </div>
-
-          <Button className="mt-4 gradient-primary" onClick={() => window.open('https://pmfby.gov.in/', '_blank')}>
-            Apply for Insurance
-          </Button>
-        </CardContent>
-      </Card>
-
-      <div className="space-y-4">
-        <h2 className="text-2xl font-bold">Available Insurance Schemes</h2>
-        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-          {insuranceSchemes.map((scheme) => (
-            <Card key={scheme.name} className="agri-card">
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <CardTitle className="text-lg">{scheme.name}</CardTitle>
-                  <Badge className={getStatusColor(scheme.status)}>{scheme.status}</Badge>
-                </div>
-                <CardDescription>{scheme.coverage} Coverage</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-2 gap-4 text-sm">
-                  <div>
-                    <p className="text-muted-foreground">Premium</p>
-                    <p className="font-semibold text-primary">{scheme.premium}</p>
-                  </div>
-                  <div>
-                    <p className="text-muted-foreground">Max Claim</p>
-                    <p className="font-semibold text-primary">{scheme.maxClaim}</p>
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <p className="text-sm font-medium">Key Features:</p>
-                  {scheme.features.map((feature, i) => (
-                    <div key={i} className="flex items-center space-x-2 text-sm">
-                      <CheckCircle className="h-3 w-3 text-green-400" />
-                      <span className="text-muted-foreground">{feature}</span>
-                    </div>
-                  ))}
-                </div>
-                <div className="pt-2 border-t border-border/50">
-                  <p className="text-xs text-muted-foreground">Eligibility: {scheme.eligibility}</p>
-                </div>
-                <Button className="w-full gradient-primary" size="sm" onClick={() => window.open(scheme.link, '_blank')}>
-                  Learn More
-                </Button>
-              </CardContent>
-            </Card>
-          ))}
+          <Badge variant="outline" className="text-xs">{t('aiPowered')}</Badge>
         </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Premium Calculator */}
         <Card className="agri-card">
           <CardHeader>
             <CardTitle className="flex items-center space-x-2">
-              <FileText className="h-5 w-5" />
-              <span>Recent Claims</span>
+              <Calculator className="h-5 w-5" />
+              <span>{t('premiumCalculator')}</span>
             </CardTitle>
-            <CardDescription>Track your insurance claim status</CardDescription>
+            <CardDescription>
+              {t('calculatePremium')}
+            </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            {recentClaims.map((claim) => (
-              <div key={claim.id} className="p-4 rounded-lg bg-secondary/50 space-y-2">
-                <div className="flex items-center justify-between">
-                  <span className="font-medium">{claim.id}</span>
-                  <Badge className={getStatusColor(claim.status)}>{claim.status}</Badge>
-                </div>
-                <div className="grid grid-cols-2 gap-2 text-sm">
-                  <div>
-                    <p className="text-muted-foreground">Crop</p>
-                    <p className="font-medium">{claim.crop}</p>
-                  </div>
-                  <div>
-                    <p className="text-muted-foreground">Area</p>
-                    <p className="font-medium">{claim.area}</p>
-                  </div>
-                  <div>
-                    <p className="text-muted-foreground">Amount</p>
-                    <p className="font-medium text-primary">{claim.amount}</p>
-                  </div>
-                  <div>
-                    <p className="text-muted-foreground">Date</p>
-                    <p className="font-medium">{claim.date}</p>
-                  </div>
-                </div>
-                <p className="text-xs text-muted-foreground">Reason: {claim.reason}</p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="crop-type">{t('cropType')}</Label>
+                <Select value={cropType} onValueChange={setCropType}>
+                  <SelectTrigger>
+                    <SelectValue placeholder={t('selectCommodity')} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="wheat">Wheat</SelectItem>
+                    <SelectItem value="rice">Rice</SelectItem>
+                    <SelectItem value="maize">Maize</SelectItem>
+                    <SelectItem value="cotton">Cotton</SelectItem>
+                    <SelectItem value="sugarcane">Sugarcane</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
-            ))}
-            <Button className="w-full gradient-accent" onClick={() => window.open('https://pmfby.gov.in/farmerRegistrationForm', '_blank')}>
-              File New Claim
+              <div className="space-y-2">
+                <Label htmlFor="area">{t('farmArea')}</Label>
+                <Input 
+                  id="area" 
+                  type="number" 
+                  placeholder="5.2" 
+                  value={area} 
+                  onChange={(e) => setArea(e.target.value)} 
+                />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="expected-yield">{t('expectedYield')}</Label>
+              <Input 
+                id="expected-yield" 
+                type="number" 
+                placeholder="2500" 
+                value={expectedYield} 
+                onChange={(e) => setExpectedYield(e.target.value)} 
+              />
+            </div>
+            <Button 
+              className="w-full gradient-primary" 
+              onClick={calculatePremium} 
+              disabled={loading || !cropType || !area}
+            >
+              {loading ? t('fetching') : t('calculatePremium')}
             </Button>
+            
+            {premium && (
+              <div className="mt-4 p-4 rounded-lg bg-primary/10 border border-primary/20">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-muted-foreground">{t('estimatedPremium')}</span>
+                  <span className="text-2xl font-bold text-primary">₹{premium}</span>
+                </div>
+                <div className="mt-2 text-xs text-muted-foreground">
+                  {t('maximumCoverage')}: ₹{premium * 10}
+                </div>
+                <div className="mt-1 text-xs text-green-600">
+                  {t('savingsVsMarket')}: ₹{Math.round(premium * 0.3)}
+                </div>
+              </div>
+            )}
           </CardContent>
         </Card>
 
+        {/* AI Claim Verdict */}
         <Card className="agri-card">
           <CardHeader>
             <CardTitle className="flex items-center space-x-2">
-              <Smartphone className="h-5 w-5" />
-              <span>Microfinance Options</span>
+              <Brain className="h-5 w-5" />
+              <span>{t('aiClaimVerdict')}</span>
             </CardTitle>
-            <CardDescription>Access credit facilities for your farm</CardDescription>
+            <CardDescription>
+              {t('fileNewClaim')}
+            </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="claim-image">{t('uploadImage')}</Label>
+              <Input 
+                id="claim-image" 
+                type="file" 
+                accept="image/*" 
+                onChange={handleImageUpload}
+              />
+            </div>
+            
+            {uploadedImage && (
+              <div className="space-y-2">
+                <img 
+                  src={uploadedImage} 
+                  alt="Uploaded crop" 
+                  className="w-full h-32 object-cover rounded-lg"
+                />
+                {aiLoading ? (
+                  <div className="text-sm text-primary">Analyzing with AI...</div>
+                ) : aiResult ? (
+                  <div className="text-sm text-green-700 dark:text-green-300">AI Verdict: {aiResult}</div>
+                ) : null}
+                <div className="space-y-2">
+                  <Label htmlFor="claim-reason">{t('claimReason')}</Label>
+                  <Select>
+                    <SelectTrigger>
+                      <SelectValue placeholder={t('claimReason')} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="drought">Drought</SelectItem>
+                      <SelectItem value="flood">Flood</SelectItem>
+                      <SelectItem value="pest">Pest Attack</SelectItem>
+                      <SelectItem value="disease">Disease</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <Button 
+                  className="w-full gradient-primary" 
+                  onClick={submitClaim} 
+                  disabled={loading}
+                >
+                  {loading ? t('verifyingClaim') : t('submitClaim')}
+                </Button>
+              </div>
+            )}
+
+            {claimStatus && (
+              <div className={`mt-4 p-4 rounded-lg border ${
+                claimStatus === 'approved' 
+                  ? 'bg-green-50 border-green-200' 
+                  : 'bg-red-50 border-red-200'
+              }`}>
+                <div className="flex items-center space-x-2">
+                  {claimStatus === 'approved' ? (
+                    <CheckCircle className="h-5 w-5 text-green-600" />
+                  ) : (
+                    <XCircle className="h-5 w-5 text-red-600" />
+                  )}
+                  <span className="font-semibold">
+                    {claimStatus === 'approved' ? t('approved') : t('rejected')}
+                  </span>
+                </div>
+                <div className="mt-2 text-sm text-muted-foreground">
+                  {claimStatus === 'approved' 
+                    ? 'Your claim has been approved. Payment will be processed within 7 days.'
+                    : 'Your claim has been rejected. Please contact support for more information.'
+                  }
+                </div>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Recent Claims */}
+      <Card className="agri-card">
+        <CardHeader>
+          <CardTitle className="flex items-center space-x-2">
+            <FileText className="h-5 w-5" />
+            <span>{t('recentClaims')}</span>
+          </CardTitle>
+          <CardDescription>
+            {t('trackClaimStatus')}
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            {recentClaims.map((claim) => (
+              <div key={claim.id} className="flex items-center justify-between p-4 rounded-lg bg-secondary/50">
+                <div className="flex items-center space-x-4">
+                  <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+                    <FileText className="h-6 w-6 text-primary" />
+                  </div>
+                  <div>
+                    <p className="font-semibold">{claim.crop}</p>
+                    <p className="text-sm text-muted-foreground">
+                      {claim.area} • {claim.date}
+                    </p>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <p className="font-semibold text-primary">{claim.claimAmount}</p>
+                  <Badge 
+                    variant={claim.status === 'approved' ? 'default' : 'secondary'}
+                    className="text-xs"
+                  >
+                    {claim.status === 'approved' ? t('approved') : 'Pending'}
+                  </Badge>
+                </div>
+              </div>
+            ))}
+            <Button className="w-full gradient-primary">
+              {t('fileNewClaimBtn')}
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Available Insurance Schemes */}
+      <Card className="agri-card">
+        <CardHeader>
+          <CardTitle className="flex items-center space-x-2">
+            <ShieldCheck className="h-5 w-5" />
+            <span>{t('availableInsuranceSchemes')}</span>
+          </CardTitle>
+          <CardDescription>
+            {t('applyForInsurance')}
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {insuranceSchemes.map((scheme) => (
+              <div key={scheme.name} className="p-4 rounded-lg border border-border hover:border-primary/50 transition-colors">
+                <div className="flex items-center justify-between mb-2">
+                  <h3 className="font-semibold">{scheme.name}</h3>
+                  <Badge variant="outline" className="text-xs">Popular</Badge>
+                </div>
+                <p className="text-sm text-muted-foreground mb-2">{scheme.description}</p>
+                <div className="space-y-1 text-xs">
+                  <p><span className="font-medium">Coverage:</span> {scheme.coverage}</p>
+                  <p><span className="font-medium">Premium:</span> {scheme.premium}</p>
+                </div>
+                <div className="flex space-x-2 mt-3">
+                  <a href={scheme.link} target="_blank" rel="noopener noreferrer" className="flex-1">
+                    <Button size="sm" variant="outline" className="w-full">
+                      {t('learnMore')}
+                    </Button>
+                  </a>
+                  <Button size="sm" className="flex-1 gradient-primary">
+                    {t('applyNow')}
+                  </Button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Microfinance Options */}
+      <Card className="agri-card">
+        <CardHeader>
+          <CardTitle className="flex items-center space-x-2">
+            <DollarSign className="h-5 w-5" />
+            <span>{t('microfinanceOptions')}</span>
+          </CardTitle>
+          <CardDescription>
+            {t('accessCredit')}
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {microfinanceOptions.map((option) => (
-              <div key={option.name} className="p-4 rounded-lg bg-secondary/50 space-y-3">
-                <div className="flex items-center justify-between">
-                  <h4 className="font-semibold">{option.name}</h4>
-                  <Badge variant="outline">Available</Badge>
+              <div key={option.name} className="p-4 rounded-lg border border-border hover:border-primary/50 transition-colors">
+                <h3 className="font-semibold mb-2">{option.name}</h3>
+                <div className="space-y-1 text-sm">
+                  <p><span className="font-medium">Amount:</span> {option.amount}</p>
+                  <p><span className="font-medium">Interest:</span> {option.interest}</p>
+                  <p><span className="font-medium">Tenure:</span> {option.tenure}</p>
                 </div>
-                <div className="grid grid-cols-2 gap-2 text-sm">
-                  <div>
-                    <p className="text-muted-foreground">Amount</p>
-                    <p className="font-medium text-primary">{option.amount}</p>
-                  </div>
-                  <div>
-                    <p className="text-muted-foreground">Interest</p>
-                    <p className="font-medium text-primary">{option.interest}</p>
-                  </div>
-                  <div>
-                    <p className="text-muted-foreground">Tenure</p>
-                    <p className="font-medium">{option.tenure}</p>
-                  </div>
-                </div>
-                <div className="space-y-1">
-                  {option.features.map((feature, i) => (
-                    <div key={i} className="flex items-center space-x-2 text-xs">
-                      <CheckCircle className="h-3 w-3 text-green-400" />
-                      <span className="text-muted-foreground">{feature}</span>
-                    </div>
-                  ))}
-                </div>
-                <Button className="w-full gradient-earth" size="sm" onClick={() => window.open(option.link, '_blank')}>
-                  Apply Now
+                <Button className="w-full mt-3 gradient-primary">
+                  {t('applyNow')}
                 </Button>
               </div>
             ))}
-          </CardContent>
-        </Card>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* AI Chat Assistant */}
+      <Card className="agri-card">
+        <CardHeader>
+          <CardTitle className="flex items-center space-x-2">
+            <MessageCircle className="h-5 w-5" />
+            <span>{t('aiChatAssistant')}</span>
+          </CardTitle>
+          <CardDescription>
+            {t('getInstantAnswers')}
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="text-center p-4 rounded-lg bg-secondary/50">
+              <MessageCircle className="h-8 w-8 text-primary mx-auto mb-2" />
+              <p className="text-sm font-medium">{t('availability')}</p>
+            </div>
+            <div className="text-center p-4 rounded-lg bg-secondary/50">
+              <Brain className="h-8 w-8 text-primary mx-auto mb-2" />
+              <p className="text-sm font-medium">{t('multiLanguageSupport')}</p>
+            </div>
+            <div className="text-center p-4 rounded-lg bg-secondary/50">
+              <Leaf className="h-8 w-8 text-primary mx-auto mb-2" />
+              <p className="text-sm font-medium">{t('cropSpecificAdvice')}</p>
+            </div>
+            <div className="text-center p-4 rounded-lg bg-secondary/50">
+              <Phone className="h-8 w-8 text-primary mx-auto mb-2" />
+              <p className="text-sm font-medium">{t('voiceAdvisory')}</p>
+            </div>
+          </div>
+          <div className="mt-4 flex space-x-2">
+            <Button className="flex-1 gradient-primary">
+              {t('callAgriculturalExperts')}
+            </Button>
+            <Button variant="outline" className="flex-1">
+              {t('expertConsultation')}
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Reference links for Groq API and Meta Llama Model */}
+      <div className="mt-6 text-xs text-muted-foreground text-center">
+        <a href="https://console.groq.com/docs" target="_blank" rel="noopener noreferrer" className="underline text-primary">Groq API Docs</a>
+        {' | '}
+        <a href="https://ai.meta.com/llama/" target="_blank" rel="noopener noreferrer" className="underline text-primary">Meta Llama Model</a>
       </div>
     </div>
   );

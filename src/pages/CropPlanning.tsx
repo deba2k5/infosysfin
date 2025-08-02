@@ -17,10 +17,14 @@ import {
   DollarSign, AlertCircle, CheckCircle, Brain
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useTranslation } from 'react-i18next';
+import SpeakButton from '@/components/SpeakButton';
+import ReadPageButton from '@/components/ReadPageButton';
 
 const SERPER_API_KEY = '1ed76e52b93c255cfe96f4d5a70d4aadd2952696';
 
 const CropPlanning = () => {
+  const { t } = useTranslation();
   const [soilType, setSoilType] = useState('');
   const [season, setSeason] = useState('');
   const [budget, setBudget] = useState('');
@@ -88,7 +92,7 @@ const CropPlanning = () => {
       setCropRecommendations(summary);
     } catch (error) {
       console.error('Serper API Error:', error);
-      alert('Failed to get crop recommendations.');
+      alert(t('failedToGetRecommendations'));
     }
     setLoading(false);
   };
@@ -97,14 +101,17 @@ const CropPlanning = () => {
     <div className="container mx-auto p-6 space-y-6">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center space-y-4 md:space-y-0">
         <div>
-          <h1 className="text-3xl font-bold hero-text">Crop Planning</h1>
+          <h1 className="text-3xl font-bold hero-text flex items-center gap-2">
+            {t('cropPlanningTitle')}
+            <SpeakButton textKey="cropPlanningTitle" />
+          </h1>
           <p className="text-muted-foreground mt-1">
-            AI-powered crop recommendations tailored for your farm
+            {t('aiPoweredCropRecommendations')}
           </p>
         </div>
         <div className="flex items-center space-x-2">
           <Brain className="h-5 w-5 text-primary" />
-          <Badge variant="outline" className="text-xs">AI Powered</Badge>
+          <Badge variant="outline" className="text-xs">{t('aiPowered')}</Badge>
         </div>
       </div>
 
@@ -112,53 +119,53 @@ const CropPlanning = () => {
         <CardHeader>
           <CardTitle className="flex items-center space-x-2">
             <MapPin className="h-5 w-5" />
-            <span>Farm Details</span>
+            <span>{t('farmDetails')}</span>
           </CardTitle>
           <CardDescription>
-            Provide your farm details to get personalized crop recommendations
+            {t('provideFarmDetails')}
           </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="soil-type">Soil Type</Label>
+              <Label htmlFor="soil-type">{t('soilType')}</Label>
               <Select value={soilType} onValueChange={setSoilType}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Select soil type" />
+                  <SelectValue placeholder={t('selectSoilType')} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="black">Black Soil</SelectItem>
-                  <SelectItem value="red">Red Soil</SelectItem>
-                  <SelectItem value="alluvial">Alluvial Soil</SelectItem>
-                  <SelectItem value="clay">Clay Soil</SelectItem>
-                  <SelectItem value="loamy">Loamy Soil</SelectItem>
+                  <SelectItem value="black">{t('blackSoil')}</SelectItem>
+                  <SelectItem value="red">{t('redSoil')}</SelectItem>
+                  <SelectItem value="alluvial">{t('alluvialSoil')}</SelectItem>
+                  <SelectItem value="clay">{t('claySoil')}</SelectItem>
+                  <SelectItem value="loamy">{t('loamySoil')}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="season">Season</Label>
+              <Label htmlFor="season">{t('season')}</Label>
               <Select value={season} onValueChange={setSeason}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Select season" />
+                  <SelectValue placeholder={t('selectSeason')} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="kharif">Kharif (Jun-Oct)</SelectItem>
-                  <SelectItem value="rabi">Rabi (Nov-Apr)</SelectItem>
-                  <SelectItem value="zaid">Zaid (Apr-Jun)</SelectItem>
+                  <SelectItem value="kharif">{t('kharif')}</SelectItem>
+                  <SelectItem value="rabi">{t('rabi')}</SelectItem>
+                  <SelectItem value="zaid">{t('zaid')}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="area">Farm Area (hectares)</Label>
+              <Label htmlFor="area">{t('farmArea')}</Label>
               <Input id="area" type="number" placeholder="5.2" value={area} onChange={(e) => setArea(e.target.value)} />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="budget">Budget (₹)</Label>
+              <Label htmlFor="budget">{t('budget')}</Label>
               <Input id="budget" type="number" placeholder="200000" value={budget} onChange={(e) => setBudget(e.target.value)} />
             </div>
           </div>
           <Button className="mt-4 gradient-primary" onClick={fetchRecommendations} disabled={loading}>
-            {loading ? 'Fetching...' : 'Get AI Recommendations'}
+            {loading ? t('fetching') : t('getAiRecommendations')}
           </Button>
         </CardContent>
       </Card>
@@ -167,32 +174,32 @@ const CropPlanning = () => {
         <CardHeader>
           <CardTitle className="flex items-center space-x-2">
             <Thermometer className="h-5 w-5" />
-            <span>Current Conditions</span>
+            <span>{t('currentConditions')}</span>
           </CardTitle>
           <CardDescription>
-            Environmental factors affecting crop selection
+            {t('environmentalFactors')}
           </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div className="text-center p-4 rounded-lg bg-secondary/50">
               <Thermometer className="h-6 w-6 text-primary mx-auto mb-2" />
-              <p className="text-sm text-muted-foreground">Temperature</p>
+              <p className="text-sm text-muted-foreground">{t('temperature')}</p>
               <p className="font-semibold text-primary">{weatherConditions.temperature}</p>
             </div>
             <div className="text-center p-4 rounded-lg bg-secondary/50">
               <Droplets className="h-6 w-6 text-primary mx-auto mb-2" />
-              <p className="text-sm text-muted-foreground">Rainfall</p>
+              <p className="text-sm text-muted-foreground">{t('rainfall')}</p>
               <p className="font-semibold text-primary">{weatherConditions.rainfall}</p>
             </div>
             <div className="text-center p-4 rounded-lg bg-secondary/50">
               <Calendar className="h-6 w-6 text-primary mx-auto mb-2" />
-              <p className="text-sm text-muted-foreground">Humidity</p>
+              <p className="text-sm text-muted-foreground">{t('humidity')}</p>
               <p className="font-semibold text-primary">{weatherConditions.humidity}</p>
             </div>
             <div className="text-center p-4 rounded-lg bg-secondary/50">
               <Leaf className="h-6 w-6 text-primary mx-auto mb-2" />
-              <p className="text-sm text-muted-foreground">Soil pH</p>
+              <p className="text-sm text-muted-foreground">{t('soilPh')}</p>
               <p className="font-semibold text-primary">{weatherConditions.soilPh}</p>
             </div>
           </div>
@@ -200,7 +207,7 @@ const CropPlanning = () => {
       </Card>
 
       <div className="space-y-4">
-        <h2 className="text-2xl font-bold">AI Crop Recommendations</h2>
+        <h2 className="text-2xl font-bold">{t('aiCropRecommendations')}</h2>
         <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
           {cropRecommendations.map((crop, index) => (
             <Card key={index} className="agri-card">
@@ -215,37 +222,37 @@ const CropPlanning = () => {
                   </Badge>
                 </div>
                 <CardDescription>
-                  Suitability Score: {crop.suitability}%
+                  {t('suitabilityScore')}: {crop.suitability}%
                 </CardDescription>
                 <Progress value={crop.suitability} className={`h-2 ${getSuitabilityColor(crop.suitability)}`} />
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="grid grid-cols-2 gap-4 text-sm">
                   <div>
-                    <p className="text-muted-foreground">Expected Yield</p>
+                    <p className="text-muted-foreground">{t('expectedYield')}</p>
                     <p className="font-medium">{crop.expectedYield}</p>
                   </div>
                   <div>
-                    <p className="text-muted-foreground">Season</p>
+                    <p className="text-muted-foreground">{t('season')}</p>
                     <p className="font-medium">{crop.season}</p>
                   </div>
                   <div>
-                    <p className="text-muted-foreground">Water Need</p>
+                    <p className="text-muted-foreground">{t('waterNeed')}</p>
                     <p className="font-medium">{crop.waterRequirement}</p>
                   </div>
                   <div>
-                    <p className="text-muted-foreground">Market Demand</p>
+                    <p className="text-muted-foreground">{t('marketDemand')}</p>
                     <p className="font-medium">{crop.marketDemand}</p>
                   </div>
                 </div>
                 <div className="space-y-2">
                   <div className="flex items-center space-x-2">
                     <DollarSign className="h-4 w-4 text-primary" />
-                    <span className="text-sm font-medium">Investment: {crop.investmentNeeded}</span>
+                    <span className="text-sm font-medium">{t('investment')}: {crop.investmentNeeded}</span>
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <p className="text-sm font-medium text-green-400">Advantages:</p>
+                  <p className="text-sm font-medium text-green-400">{t('advantages')}:</p>
                   {crop.pros.map((pro: string, i: number) => (
                     <div key={i} className="flex items-center space-x-2 text-sm">
                       <CheckCircle className="h-3 w-3 text-green-400" />
@@ -254,7 +261,7 @@ const CropPlanning = () => {
                   ))}
                 </div>
                 <div className="space-y-2">
-                  <p className="text-sm font-medium text-yellow-400">Considerations:</p>
+                  <p className="text-sm font-medium text-yellow-400">{t('considerations')}:</p>
                   {crop.cons.map((con: string, i: number) => (
                     <div key={i} className="flex items-center space-x-2 text-sm">
                       <AlertCircle className="h-3 w-3 text-yellow-400" />
@@ -263,7 +270,7 @@ const CropPlanning = () => {
                   ))}
                 </div>
                 <Button className="w-full gradient-primary">
-                  Select This Crop
+                  {t('selectThisCrop')}
                 </Button>
               </CardContent>
             </Card>

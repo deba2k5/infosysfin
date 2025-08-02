@@ -1,16 +1,8 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { 
-  User, 
-  signInWithEmailAndPassword, 
-  createUserWithEmailAndPassword, 
-  signOut, 
-  onAuthStateChanged 
-} from 'firebase/auth';
-import { auth } from '@/lib/firebase';
 import { useToast } from '@/hooks/use-toast';
 
 interface AuthContextType {
-  user: User | null;
+  user: any;
   loading: boolean;
   signIn: (email: string, password: string) => Promise<void>;
   signUp: (email: string, password: string) => Promise<void>;
@@ -28,22 +20,42 @@ export const useAuth = () => {
 };
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<any>(() => {
+    // Initialize user from localStorage if available
+    const savedUser = localStorage.getItem('krishakSure_user');
+    return savedUser ? JSON.parse(savedUser) : null;
+  });
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setUser(user);
+    // Check if user exists in localStorage immediately
+    const savedUser = localStorage.getItem('krishakSure_user');
+    if (savedUser) {
+      setUser(JSON.parse(savedUser));
+    }
+    
+    // Simulate loading delay
+    const timer = setTimeout(() => {
       setLoading(false);
-    });
+    }, 500);
 
-    return unsubscribe;
+    return () => clearTimeout(timer);
   }, []);
+
+  // Persist user to localStorage whenever it changes
+  useEffect(() => {
+    if (user) {
+      localStorage.setItem('krishakSure_user', JSON.stringify(user));
+    } else {
+      localStorage.removeItem('krishakSure_user');
+    }
+  }, [user]);
 
   const signIn = async (email: string, password: string) => {
     try {
-      await signInWithEmailAndPassword(auth, email, password);
+      // Mock authentication
+      setUser({ email, uid: 'mock-user-id' });
       toast({
         title: "Welcome back!",
         description: "Successfully signed in to KrishakSure.",
@@ -60,7 +72,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const signUp = async (email: string, password: string) => {
     try {
-      await createUserWithEmailAndPassword(auth, email, password);
+      // Mock authentication
+      setUser({ email, uid: 'mock-user-id' });
       toast({
         title: "Welcome to KrishakSure!",
         description: "Your account has been created successfully.",
@@ -77,7 +90,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const logout = async () => {
     try {
-      await signOut(auth);
+      setUser(null);
       toast({
         title: "Signed out",
         description: "You have been signed out successfully.",

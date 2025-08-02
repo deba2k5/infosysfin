@@ -15,7 +15,7 @@ export interface CropRecommendation {
   roi: string;
 }
 
-const GEMINI_API_KEY = 'AIzaSyDj374HV1f1RDXLbIPz0BQwW5V95lTzwTc';
+const GEMINI_API_KEY = process.env.REACT_APP_GEMINI_API_KEY || '';
 
 export const aiService = {
   async sendChatMessage(message: string, language: string = 'english', context?: any): Promise<string> {

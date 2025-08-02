@@ -11,30 +11,33 @@ import {
   Users,
   ArrowDown
 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import heroImage from '@/assets/hero-agriculture.jpg';
 
 const HeroSection = () => {
+  const { t } = useTranslation();
+  
   const stats = [
-    { label: 'Farmers Served', value: '50K+', icon: Users },
-    { label: 'Crop Yield Increase', value: '30%', icon: TrendingUp },
-    { label: 'Insurance Claims', value: '₹2.5Cr', icon: ShieldCheck },
+    { label: t('farmersServed'), value: '50K+', icon: Users },
+    { label: t('cropYieldIncrease'), value: '30%', icon: TrendingUp },
+    { label: t('insuranceClaims'), value: '₹2.5Cr', icon: ShieldCheck },
   ];
 
   const features = [
     {
       icon: Brain,
-      title: 'AI-Powered Insights',
-      description: 'Smart crop recommendations and disease diagnosis'
+      title: t('aiPoweredInsights'),
+      description: t('aiPoweredInsightsDesc')
     },
     {
       icon: Satellite,
-      title: 'Satellite Monitoring',
-      description: 'Real-time weather and crop health monitoring'
+      title: t('satelliteMonitoring'),
+      description: t('satelliteMonitoringDesc')
     },
     {
       icon: ShieldCheck,
-      title: 'Insurance & Finance',
-      description: 'Easy access to crop insurance and microfinance'
+      title: t('insuranceFinance'),
+      description: t('insuranceFinanceDesc')
     }
   ];
 
@@ -58,31 +61,30 @@ const HeroSection = () => {
         <div className="max-w-4xl mx-auto">
           <Badge variant="secondary" className="mb-6 neon-glow">
             <Leaf className="w-4 h-4 mr-2" />
-            AI-Powered Agricultural Guardian
+            {t('aiPoweredAgriculturalGuardian')}
           </Badge>
 
           <h1 className="text-5xl md:text-7xl font-bold mb-6 animate-fade-in">
-            <span className="hero-text">KrishakSure</span>
+            <span className="hero-text">{t('krishakSure')}</span>
             <br />
             <span className="text-3xl md:text-4xl text-muted-foreground">
-              Empowering Indian Farmers
+              {t('empoweringIndianFarmers')}
             </span>
           </h1>
 
           <p className="text-xl md:text-2xl text-muted-foreground mb-8 max-w-3xl mx-auto animate-fade-in">
-            Transform your farming with AI-powered crop planning, real-time disease diagnosis, 
-            satellite monitoring, and seamless access to insurance & microfinance.
+            {t('transformFarmingDescription')}
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12 animate-slide-up">
             <Link to="/auth">
               <Button size="lg" className="gradient-primary text-lg px-8 py-6 neon-glow-strong">
-                Start Farming Smart
+                {t('startFarmingSmart')}
               </Button>
             </Link>
             <Link to="/dashboard">
               <Button size="lg" variant="outline" className="text-lg px-8 py-6 border-primary/50 hover:bg-primary/10">
-                View Demo
+                {t('viewDemo')}
               </Button>
             </Link>
           </div>

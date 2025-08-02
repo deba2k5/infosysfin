@@ -12,8 +12,8 @@ With integrations across satellite intelligence, weather forecasts, mandi prices
 |---------------------------------|-----------------------------------------------------------------------------|
 | 🛰️ **NDVI Vegetation Health**   | Real-time NDVI & surface reflectance maps via **Planet API + Leaflet**     |
 | ☁️ **Weather Forecast**         | 7-day forecasts + alerts via **Tomorrow.io API**                           |
-| 📉 **Mandi Price Analysis**     | Crop-wise price trends via **Agmarknet API**                               |
-| 🧬 **Crop Health Diagnosis**    | Upload plant image → detect diseases using **linkanjarad/mobilenet_v2_1.0_224-plant-disease-identification**                  |
+| 📉 **Mandi Price Analysis**     | Real-time prices + AI-powered price prediction with 50K+ synthetic dataset |
+| 🧬 **Crop Health Diagnosis**    | Upload plant image → detect diseases using **Groq VLM (Llama-4-Scout-17B)**                  |
 | 🌱 **Cross Crop Advisory**      | Soil-Season-Crop input → get companion crop suggestions (via AI)           |
 | 🔔 **Smart Alerts**             | WhatsApp/SMS via **Twilio API**, alerts for weather, disease & prices      |
 | 🛡️ **Crop Insurance Calculator**| Estimate premium & find available government insurance                     |
@@ -86,11 +86,44 @@ npm run dev
 | -------------------- | ------------------------------------- |
 | 🌍 **Planet API**    | NDVI & surface reflectance imagery    |
 | ⛅ **Tomorrow\.io**   | Weather forecast & real-time alerts   |
-| 🧬 **Gemini API**    | Disease prediction from leaf images   |
-| 📉 **Agmarknet API** | Mandi price data across India         |
+| 🧬 **Groq VLM API**    | Real-time crop disease analysis using Llama-4-Scout-17B   |
+| 📉 **Price Prediction** | AI-powered price forecasting with linear regression |
 | 💬 **Twilio API**    | SMS/WhatsApp for urgent alerts        |
 | 🔐 **Firebase**      | Auth, Firestore DB, Chatbot storage   |
 | 🔎 **Serper API**    | Fallback NLP advisory if Gemini fails |
+
+### 🧬 Groq VLM Integration
+
+The crop health diagnosis feature now uses **Groq's Vision Language Model** powered by **Llama-4-Scout-17B** for real-time image analysis.
+
+- **Real-time Analysis**: Upload plant images and get instant disease detection
+- **Advanced AI Model**: Uses state-of-the-art Llama-4-Scout-17B model for accurate diagnosis
+- **Comprehensive Results**: Provides disease name, confidence score, severity level, treatment recommendations, and prevention tips
+- **Fallback System**: Includes robust fallback data if API calls fail
+- **Error Handling**: Comprehensive error handling for file validation, API limits, and parsing issues
+
+**API Key Setup**: 
+1. Copy `env.example` to `.env`
+2. Add your Groq API key: `GROQ_API_KEY=your_actual_key_here`
+3. The key is automatically loaded from environment variables
+
+### 📉 Enhanced Price Prediction System
+
+The MarketPrices component now includes advanced AI-powered price prediction capabilities:
+
+- **Synthetic Dataset**: 50,000+ historical price records across 7 states and 70+ mandis
+- **Linear Regression Model**: Advanced statistical analysis for price forecasting
+- **Multiple Timeframes**: Predictions for next month and next quarter
+- **Real-time Input**: Users can input current prices for more accurate predictions
+- **Trend Analysis**: Visual indicators for price trends (up/down/stable)
+- **Confidence Scoring**: 70-95% confidence levels with progress bars
+- **Seasonal Factors**: Built-in seasonal adjustments for different crops
+- **Key Factors Display**: Shows influencing factors like demand patterns, weather, policies
+
+**Features**:
+- **Market Prices Mode**: Current mandi prices with min/max/modal ranges
+- **Price Prediction Mode**: AI-powered forecasting with trend analysis
+- **Cross Crop Advisory Mode**: Expert planting advice based on soil and season
 
 | Issue                                        | Fix                                                |
 | -------------------------------------------- | -------------------------------------------------- |

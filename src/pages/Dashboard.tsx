@@ -23,6 +23,10 @@ import weatherSatelliteImage from '@/assets/weather-satellite.jpg';
 import farmerTechImage from '@/assets/farmer-tech.jpg';
 import { satelliteService, SatelliteData } from '@/services/satelliteService';
 import { weatherService, ForecastDay } from '@/services/weatherService';
+import { useTranslation } from 'react-i18next';
+import SpeakButton from '@/components/SpeakButton';
+import ReadPageButton from '@/components/ReadPageButton';
+import AuthDebug from '@/components/AuthDebug';
 
 // Define DashboardAlert type for alerts
 interface DashboardAlert {
@@ -36,6 +40,7 @@ interface DashboardAlert {
 const Dashboard = () => {
   const navigate = useNavigate();
   const { user, loading } = useAuth();
+  const { t } = useTranslation();
 
   // --- Live location and manual override state ---
   const DEFAULT_LOCATION = { lat: 18.5204, lon: 73.8567 }; // Pune, Maharashtra
@@ -65,33 +70,29 @@ const Dashboard = () => {
   const [satelliteData, setSatelliteData] = useState<SatelliteData | null>(null);
   const [recentAlerts, setRecentAlerts] = useState<DashboardAlert[]>([]);
 
-  useEffect(() => {
-    if (!loading && !user) {
-      navigate('/auth');
-    }
-  }, [user, loading, navigate]);
+
 
   // --- Your quick actions (unchanged) ---
   const quickActions = [
     {
-      title: 'Crop Health Check',
-      description: 'Upload plant image for AI diagnosis',
+      title: t('cropHealthCheck'),
+      description: t('uploadPlantImage'),
       icon: Camera,
       action: 'diagnosis',
       image: cropDiagnosisImage,
       path: '/crop-health'
     },
     {
-      title: 'Weather Forecast',
-      description: '7-day satellite weather data',
+      title: t('weatherForecast'),
+      description: t('satelliteWeatherData'),
       icon: CloudSun,
       action: 'weather',
       image: weatherSatelliteImage,
       path: '/weather'
     },
     {
-      title: 'Market Prices',
-      description: 'Current mandi rates & trends',
+      title: t('marketPrices'),
+      description: t('currentMandiRates'),
       icon: DollarSign,
       action: 'market',
       image: farmerTechImage,
@@ -295,7 +296,7 @@ const Dashboard = () => {
           id: `rain-${day.day}`,
           type: 'weather',
           severity: 'high',
-          message: `${day.day}: Heavy rain expected (${day.rain}%)`,
+          message: `${day.day}: ${t('heavy_rain_expected', { rain: day.rain })}`,
           time: 'Upcoming'
         });
       } else if (day.rain >= 50) {
@@ -303,7 +304,7 @@ const Dashboard = () => {
           id: `rain-${day.day}`,
           type: 'weather',
           severity: 'medium',
-          message: `${day.day}: Moderate rain expected (${day.rain}%)`,
+          message: `${day.day}: ${t('moderate_rain_expected', { rain: day.rain })}`,
           time: 'Upcoming'
         });
       }
@@ -312,7 +313,7 @@ const Dashboard = () => {
           id: `storm-${day.day}`,
           type: 'weather',
           severity: 'high',
-          message: `${day.day}: Storm expected`,
+          message: `${day.day}: ${t('storm_expected')}`,
           time: 'Upcoming'
         });
       }
@@ -324,7 +325,7 @@ const Dashboard = () => {
           id: 'crop-health',
           type: 'disease',
           severity: 'medium',
-          message: 'Crop health is below optimal. Check for disease or stress.',
+          message: t('crop_health_below_optimal'),
           time: 'Now'
         });
       }
@@ -334,7 +335,7 @@ const Dashboard = () => {
             id: `stress-${idx}`,
             type: 'disease',
             severity: area.severity,
-            message: `Stress area detected (${area.type.replace('_', ' ')}), severity: ${area.severity}`,
+            message: `${t('stress_area_detected', { type: area.type.replace('_', ' ') })} (${t('severity')}: ${area.severity})`,
             time: 'Now'
           });
         });
@@ -362,53 +363,33 @@ const Dashboard = () => {
   if (loading) return null;
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
-      {/* Header */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center space-y-4 md:space-y-0">
-        <div>
-          <h1 className="text-3xl font-bold hero-text">Farm Dashboard</h1>
-          <p className="text-muted-foreground mt-1">
-            Welcome back! Here's what's happening on your farm today.
-          </p>
+    <div className="container mx-auto p-4 md:p-6 space-y-6">
+      <AuthDebug />
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2">
+        <div className="flex items-center gap-2">
+          <Leaf className="h-8 w-8 text-primary" />
+          <h1 className="text-3xl font-bold flex items-center gap-2">{t('dashboard')} <SpeakButton textKey="dashboard" /></h1>
         </div>
-        <div className="flex items-center space-x-2">
-          <MapPin className="h-4 w-4 text-muted-foreground" />
-          <span className="text-sm text-muted-foreground">
-            {location ? `Lat: ${location.lat.toFixed(4)}, Lon: ${location.lon.toFixed(4)}` : 'Fetching location...'}
-          </span>
-          <Badge variant="outline" className="text-xs">
-            <Calendar className="h-3 w-3 mr-1" />
-            Kharif Season
-          </Badge>
-          {/* Manual location toggle */}
-          <Button
-            size="sm"
-            variant="outline"
-            className="ml-2"
-            onClick={() => setManualMode((m) => !m)}
-          >
-            {manualMode ? 'Cancel' : 'Change Location'}
-          </Button>
-        </div>
+        <ReadPageButton text={t('dashboardPageReadout')} />
       </div>
       {/* Manual location input */}
       {manualMode && (
         <form onSubmit={handleManualSubmit} className="flex items-center space-x-2 mb-4">
           <Input
             type="text"
-            placeholder="Enter place name (e.g. Pune, Maharashtra)"
+            placeholder={t('enterPlaceName', { example: 'Pune, Maharashtra' })}
             value={placeName}
             onChange={(e) => setPlaceName(e.target.value)}
             className="w-64"
           />
-          <Button type="submit" size="sm">Set Location</Button>
+          <Button type="submit" size="sm">{t('setLocation')}</Button>
           <Button type="button" size="sm" variant="ghost" onClick={handleUseAuto}>
-            Use My Location
+            {t('useMyLocation')}
           </Button>
         </form>
       )}
       {dataLoading && (
-        <div className="my-4 text-center text-blue-500">Loading live data...</div>
+        <div className="my-4 text-center text-blue-500">{t('loadingLiveData')}</div>
       )}
       {error && (
         <div className="my-4 text-center text-red-500">{error}</div>
@@ -418,20 +399,20 @@ const Dashboard = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <Card className="agri-card">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Farm Area</CardTitle>
+            <CardTitle className="text-sm font-medium">{t('farmArea')}</CardTitle>
             <Leaf className="h-4 w-4 text-primary" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-primary">{farmData.totalArea}</div>
             <p className="text-xs text-muted-foreground">
-              {farmData.currentCrops} active crops
+              {t('activeCrops', { count: farmData.currentCrops })}
             </p>
           </CardContent>
         </Card>
 
         <Card className="agri-card">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Health Score</CardTitle>
+            <CardTitle className="text-sm font-medium">{t('healthScore')}</CardTitle>
             <TrendingUp className="h-4 w-4 text-primary" />
           </CardHeader>
           <CardContent>
@@ -442,7 +423,7 @@ const Dashboard = () => {
 
         <Card className="agri-card">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Temperature</CardTitle>
+            <CardTitle className="text-sm font-medium">{t('temperature')}</CardTitle>
             <CloudSun className="h-4 w-4 text-primary" />
           </CardHeader>
           <CardContent>
@@ -453,12 +434,12 @@ const Dashboard = () => {
 
         <Card className="agri-card">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Yield Prediction</CardTitle>
+            <CardTitle className="text-sm font-medium">{t('yieldPrediction')}</CardTitle>
             <ShieldCheck className="h-4 w-4 text-primary" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-agri-lime">{farmData.yieldPrediction}</div>
-            <p className="text-xs text-muted-foreground">vs last season</p>
+            <p className="text-xs text-muted-foreground">{t('vsLastSeason')}</p>
           </CardContent>
         </Card>
       </div>
@@ -468,45 +449,27 @@ const Dashboard = () => {
         <CardHeader>
           <CardTitle className="flex items-center space-x-2">
             <Users className="h-5 w-5" />
-            <span>Quick Actions</span>
+            <span>{t('quick_actions')}</span>
           </CardTitle>
           <CardDescription>
-            Essential farming tools at your fingertips
+            {t('essentialFarmingTools')}
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {quickActions.map((action, index) => {
-              const Icon = action.icon;
-              return (
-                <div key={action.action} className="relative group cursor-pointer">
-                  <div 
-                    className="relative h-48 rounded-xl overflow-hidden bg-cover bg-center transition-transform duration-300 group-hover:scale-105"
-                    style={{ backgroundImage: `url(${action.image})` }}
-                    onClick={() => handleQuickAction(action.action, action.path)}
-                  >
-                    <div className="absolute inset-0 bg-gradient-to-t from-background/80 to-transparent"></div>
-                    <div className="absolute bottom-4 left-4 right-4">
-                      <div className="flex items-center space-x-2 mb-2">
-                        <Icon className="h-5 w-5 text-primary" />
-                        <span className="font-semibold text-foreground">{action.title}</span>
-                      </div>
-                      <p className="text-sm text-muted-foreground mb-3">{action.description}</p>
-                      <Button 
-                        size="sm" 
-                        className="gradient-primary"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleQuickAction(action.action, action.path);
-                        }}
-                      >
-                        Try Now
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {quickActions.map((action, idx) => (
+              <Card key={idx} className="flex flex-col h-full">
+                <CardHeader className="flex flex-row items-center gap-2">
+                  <action.icon className="h-6 w-6 text-primary" />
+                  <CardTitle>{action.title}</CardTitle>
+                </CardHeader>
+                <CardContent className="flex-1 flex flex-col justify-between">
+                  <img src={action.image} alt={action.title} className="rounded-lg mb-2 w-full h-32 object-cover" />
+                  <CardDescription>{action.description}</CardDescription>
+                  <Button className="mt-4 w-full" onClick={() => navigate(action.path)}>{t('tryNow')}</Button>
+                </CardContent>
+              </Card>
+            ))}
           </div>
         </CardContent>
       </Card>
@@ -517,10 +480,10 @@ const Dashboard = () => {
           <CardHeader>
             <CardTitle className="flex items-center space-x-2">
               <AlertTriangle className="h-5 w-5" />
-              <span>Recent Alerts</span>
+              <span>{t('recent_alerts')}</span>
             </CardTitle>
             <CardDescription>
-              Important notifications for your farm
+              {t('importantNotifications')}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -542,28 +505,28 @@ const Dashboard = () => {
           <CardHeader>
             <CardTitle className="flex items-center space-x-2">
               <CloudSun className="h-5 w-5" />
-              <span>Weather Overview</span>
+              <span>{t('weather_overview')}</span>
             </CardTitle>
             <CardDescription>
-              Current conditions and forecast
+              {t('currentConditionsAndForecast')}
             </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <p className="text-sm text-muted-foreground">Temperature</p>
+                <p className="text-sm text-muted-foreground">{t('temperature')}</p>
                 <p className="text-2xl font-bold text-primary">{weatherData.temperature}</p>
               </div>
               <div className="space-y-2">
-                <p className="text-sm text-muted-foreground">Humidity</p>
+                <p className="text-sm text-muted-foreground">{t('humidity')}</p>
                 <p className="text-2xl font-bold text-primary">{weatherData.humidity}</p>
               </div>
               <div className="space-y-2">
-                <p className="text-sm text-muted-foreground">Rainfall</p>
+                <p className="text-sm text-muted-foreground">{t('rainfall')}</p>
                 <p className="text-2xl font-bold text-primary">{weatherData.rainfall}</p>
               </div>
               <div className="space-y-2">
-                <p className="text-sm text-muted-foreground">Condition</p>
+                <p className="text-sm text-muted-foreground">{t('condition')}</p>
                 <p className="text-lg font-medium text-primary">{weatherData.condition}</p>
               </div>
             </div>
@@ -571,7 +534,7 @@ const Dashboard = () => {
               className="w-full mt-4 gradient-accent"
               onClick={() => navigate('/weather')}
             >
-              View 7-Day Forecast
+              {t('view7DayForecast')}
             </Button>
           </CardContent>
         </Card>
