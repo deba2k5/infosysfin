@@ -2,8 +2,8 @@
 
 export const getApiKey = (keyName: string): string => {
   const keys: Record<string, string> = {
-    'GROQ_API_KEY': 'your_groq_api_key_here',
-    'GEMINI_API_KEY': 'your_gemini_api_key_here'
+    'GROQ_API_KEY': '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',
+    'GEMINI_API_KEY': 'AIzaSyD6_vF36e2k3pRptEKYilWpAAOGJ6gKPUA'
   };
   
   return keys[keyName] || '';
