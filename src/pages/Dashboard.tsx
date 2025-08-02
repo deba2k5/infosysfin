@@ -364,7 +364,7 @@ const Dashboard = () => {
 
   return (
     <div className="container mx-auto p-4 md:p-6 space-y-6">
-      <AuthDebug />
+      {/* <AuthDebug /> */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2">
         <div className="flex items-center gap-2">
           <Leaf className="h-8 w-8 text-primary" />
