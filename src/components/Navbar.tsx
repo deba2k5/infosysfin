@@ -49,7 +49,7 @@ const Navbar = () => {
           <div className="flex items-center gap-2">
             <Leaf className="h-6 w-6 text-primary" />
             <span className="text-lg font-bold text-primary font-sans tracking-wide">
-              Krishi Sure
+              MittiMitra
             </span>
           </div>
           <SpeakButton textKey="dashboard" />
@@ -152,7 +152,7 @@ const Navbar = () => {
               <div className="flex items-center justify-between p-4 border-b">
                 <div className="flex items-center gap-2">
                   <Leaf className="h-5 w-5 text-primary" />
-                  <span className="font-bold text-primary">Krishi Sure</span>
+                  <span className="font-bold text-primary">MittiMitra</span>
                 </div>
                 <button
                   onClick={() => setMenuOpen(false)}
