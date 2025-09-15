@@ -2,7 +2,7 @@
 
 export const getApiKey = (keyName: string): string => {
   const keys: Record<string, string> = {
-    'GROQ_API_KEY': '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',
+    'GROQ_API_KEY': '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',
     'GEMINI_API_KEY': 'AIzaSyD6_vF36e2k3pRptEKYilWpAAOGJ6gKPUA'
   };
   
